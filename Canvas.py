@@ -1,11 +1,13 @@
+from customtkinter import CTk, CTkFrame
 from typing import Dict, List, Type
-from customtkinter import CTk
 from OpenGL.GLU import *
 from OpenGL.GL import *
-from KeyPress import get_pressed_status
-from Manager import Manager
-from Shape import Shape
 import pyopengltk
+
+from KeyPress import get_pressed_status
+from custom_types import COORDINATE
+from Shapes.Shape import Shape
+from Manager import Manager
 
 class OpenGLCanvas(pyopengltk.OpenGLFrame):
     def __init__(self, parent: Type[CTk], **kwargs) -> None:
@@ -19,12 +21,12 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         super().__init__(parent, **kwargs)
 
         # Event binds
-        self.bind("<Motion>", self.on_mouse_move)
-        self.bind("<ButtonPress-1>", self.on_mouse_press)
-        self.bind("<ButtonRelease-1>", self.on_mouse_release)
+        self.bind("<Motion>", self._on_mouse_move)
+        self.bind("<ButtonPress-1>", self._on_mouse_press)
+        self.bind("<ButtonRelease-1>", self._on_mouse_release)
 
         # Main frame
-        self.parent = parent
+        self.parent: Type[CTkFrame] = parent
 
         # Animation
         self.animate: int = 1
@@ -34,16 +36,19 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         self.shapes: List[Type[Shape]] = []
 
         # Drag Events
-        self.dragging = False
-        self.start_coordinates = None
-        self.current_coordinates = None
-        self.end_coordinates = None
+        self.dragging: bool = False
+        self.start_coordinates: COORDINATE = None
+        self.current_coordinates: COORDINATE = None
+        self.end_coordinates: COORDINATE = None
 
         # Key press
-        self.control_left_pressed = False
-        self.shift_left_pressed = False
+        self.control_left_pressed: bool = False
+        self.shift_left_pressed: bool = False
 
-    def key_pressed(self, event):
+    def key_pressed(self, event) -> None:
+        """
+        Handles key pressed events sent from main CTk frame
+        """
         if Manager.selected_shape == None:
             return
 
@@ -72,12 +77,18 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
             print("decrease_shape")
             return
 
-    def on_mouse_move(self, event):
+    def _on_mouse_move(self, event) -> None:
+        """
+        Handles mouse move events
+        """
         if Manager.clicked_button:
             if self.dragging:
                 self.current_coordinates = (event.x, event.y)
 
-    def on_mouse_press(self, event):
+    def _on_mouse_press(self, event) -> None:
+        """
+        Handles mouse press events
+        """
         if Manager.clicked_button:
             self.dragging = True
             self.start_coordinates = (event.x, event.y)
@@ -97,7 +108,10 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
                         shape.selected = True
                         Manager.selected_shape = shape
 
-    def on_mouse_release(self, event):
+    def _on_mouse_release(self, event):
+        """
+        Handles mouse release events
+        """
         if Manager.clicked_button:
             if self.dragging:
                 self.end_coordinates = (event.x, event.y)
@@ -127,7 +141,7 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        if self.dragging and self.start_coordinates:
+        if self.dragging and Manager.clicked_button:
             glBegin(GL_LINES)
             glVertex2f(*self.start_coordinates)
             glVertex2f(*self.current_coordinates)
