@@ -1,7 +1,8 @@
-from customtkinter import CTkFrame, CTk, CTkButton
-from typing import Callable, List, Type
+from customtkinter import CTkFrame, CTk
+
 from Button import ShapeButton
-from Shape import Shape
+from Shapes.Shape import Shape
+from typing import Type
 
 class Navigation(CTkFrame):
     def __init__(self, parent: Type[CTk], **kwargs):
@@ -17,7 +18,7 @@ class Navigation(CTkFrame):
             TypeError: If the list of buttons is empty.
         """
         super().__init__(parent, **kwargs)
-        self.parent = parent
+        self.parent: Type[CTk] = parent
 
         button_box: CTkFrame = CTkFrame(self)
         button_box.pack(pady=(5, 0), padx=3)
@@ -35,5 +36,6 @@ class Navigation(CTkFrame):
             button_box: CTkFrame = CTkFrame(self)
             button_box.pack(pady=(5, 0), padx=3)
 
+        # Removes the last button container if it doesn't contain any child
         if not button_box.winfo_children():
             button_box.destroy()
