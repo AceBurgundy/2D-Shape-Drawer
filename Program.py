@@ -2,7 +2,6 @@ import customtkinter
 
 from Navigation import Navigation
 from Canvas import OpenGLCanvas
-from Shape import Shape
 
 from constants import *
 
@@ -22,7 +21,6 @@ class App(customtkinter.CTk):
 
         left_content: Navigation = Navigation(parent=self)
         left_content.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        left_content.insert_buttons(Shape.all_shapes())
 
         self.right_content: OpenGLCanvas = OpenGLCanvas(self)
         self.right_content.grid(row=0, column=1, padx=(0, 5), pady=5, sticky="nsew")

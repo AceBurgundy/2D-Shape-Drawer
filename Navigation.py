@@ -10,7 +10,7 @@ class Navigation(CTkFrame):
 
         Args:
             parent (Type[CTk]): The parent CTk object.
-            buttons (List[Callable]): A list of callable objects representing the buttons.
+            buttons (List[Str]): A list of str objects representing the names of the shapes.
             **kwargs: Additional keyword arguments to pass to the parent class initializer.
 
         Raises:
@@ -19,27 +19,21 @@ class Navigation(CTkFrame):
         super().__init__(parent, **kwargs)
         self.parent = parent
 
-    def insert_buttons(self, buttons: List[Callable]) -> None:
+        button_box: CTkFrame = CTkFrame(self)
+        button_box.pack(pady=(5, 0), padx=3)
 
-        if len(buttons) == 0:
-            raise TypeError('Cannot pass a list of empty buttons')
+        for index, shape_name in enumerate(Shape.names()):
+            button_box.configure(fg_color="transparent")
+            button: ShapeButton = ShapeButton(button_box, self.parent, shape_name)
 
-        # Initial div to contain the first 2 buttons
-        div: CTkFrame = CTkFrame(self)
-        div.pack(pady=(5, 0), padx=3)
-
-        for index, opengl_shape_draw_method in enumerate(buttons):
-            div.configure(fg_color="transparent")
-            button: ShapeButton = ShapeButton(div, self.parent, opengl_shape_draw_method)
-
-            # Creates a new div for the next 2 buttons
+            # Creates a new button_box for the next 2 buttons
             if (index + 1) % 2 != 0:
                 button.grid(row=0, column=0)
                 continue
 
             button.grid(row=0, column=1)
-            div: CTkFrame = CTkFrame(self)
-            div.pack(pady=(5, 0), padx=3)
+            button_box: CTkFrame = CTkFrame(self)
+            button_box.pack(pady=(5, 0), padx=3)
 
-        if not div.winfo_children():
-            div.destroy()
+        if not button_box.winfo_children():
+            button_box.destroy()
