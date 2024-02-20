@@ -18,9 +18,13 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=0, uniform="nav_col")
         self.grid_columnconfigure(1, weight=1, uniform="nav_col")
+        self.bind("<Key>", self.pressed)
 
         left_content: Navigation = Navigation(parent=self)
         left_content.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
         self.right_content: OpenGLCanvas = OpenGLCanvas(self)
         self.right_content.grid(row=0, column=1, padx=(0, 5), pady=5, sticky="nsew")
+
+    def pressed(self, event):
+        self.right_content.key_pressed(event)

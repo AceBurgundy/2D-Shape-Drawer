@@ -1,7 +1,8 @@
-from typing import List, Type
+from typing import Dict, List, Type
 from customtkinter import CTk
 from OpenGL.GLU import *
 from OpenGL.GL import *
+from KeyPress import get_pressed_status
 from Manager import Manager
 from Shape import Shape
 import pyopengltk
@@ -37,6 +38,39 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         self.start_coordinates = None
         self.current_coordinates = None
         self.end_coordinates = None
+
+        # Key press
+        self.control_left_pressed = False
+        self.shift_left_pressed = False
+
+    def key_pressed(self, event):
+        if Manager.selected_shape == None:
+            return
+
+        press_status: Dict[str, List|str] = get_pressed_status(event)
+        state: List[str] = press_status.get('state', None)
+        key: str = press_status['key']
+
+        if not state:
+            return
+
+        if len(state) > 2:
+            return
+
+        pressed_shift: bool = 'Shift' in state
+        pressed_control: bool = 'Control' in state
+        held_both: bool = pressed_shift and pressed_control
+
+        pressed_plus: bool = held_both and key == 'plus'
+        pressed_minus: bool = held_both and key == 'underscore'
+
+        if pressed_plus:
+            print("increase shape")
+            return
+
+        if pressed_minus:
+            print("decrease_shape")
+            return
 
     def on_mouse_move(self, event):
         if Manager.clicked_button:
@@ -110,7 +144,6 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         """
         Inserts a shape into the canvas
         """
-        print(start_coordinates, end_coordinates)
         shape_class_reference = Shape.shapes().get(Manager.clicked_button.shape_name)
         shape_instance = shape_class_reference(start_coordinates=start_coordinates, end_coordinates=end_coordinates)
 
