@@ -1,5 +1,5 @@
+from Shapes.Shape import Shape
 from typing import Type
-from Shape import Shape
 
 class Manager:
 
