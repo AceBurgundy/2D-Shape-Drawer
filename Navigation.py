@@ -1,31 +1,46 @@
-from customtkinter import CTkFrame, CTk
+# for type checking purposes.
 
-from Button import ShapeButton
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Program import App
+
+# start of code
+from customtkinter import CTkFrame
 from Shapes.Shape import Shape
-from typing import Type
+from Button import ImageButton
+from os import listdir, path
+from typing import List
 
 class Navigation(CTkFrame):
-    def __init__(self, parent: Type[CTk], **kwargs):
+    def __init__(self, parent: App, **kwargs):
         """
         Initializes the Navigation object.
 
         Args:
-            parent (Type[CTk]): The parent CTk object.
-            buttons (List[Str]): A list of str objects representing the names of the shapes.
+            parent (App): The parent CTk object.
             **kwargs: Additional keyword arguments to pass to the parent class initializer.
-
-        Raises:
-            TypeError: If the list of buttons is empty.
         """
         super().__init__(parent, **kwargs)
-        self.parent: Type[CTk] = parent
+        self.parent: App = parent
 
         button_box: CTkFrame = CTkFrame(self)
         button_box.pack(pady=(5, 0), padx=3)
 
-        for index, shape_name in enumerate(Shape.names()):
+        exemptions: List[str] = ["__pycache__", "Shape.py", "__init__.py"]
+        file_names: List[str] = []
+
+        for file_name in listdir('Shapes'):
+            file_path: str = path.join('Shapes', file_name)
+            if file_name not in exemptions and path.isfile(file_path):
+                clean_name: str = file_name.lower().replace('.py', '')
+                file_names.append(clean_name)
+
+        for index, shape_name in enumerate(file_names):
             button_box.configure(fg_color="transparent")
-            button: ShapeButton = ShapeButton(button_box, self.parent, shape_name)
+            button: ImageButton = ImageButton(button_box, self.parent, shape_name)
 
             # Creates a new button_box for the next 2 buttons
             if (index + 1) % 2 != 0:

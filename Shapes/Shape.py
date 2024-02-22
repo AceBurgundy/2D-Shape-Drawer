@@ -1,4 +1,4 @@
-from typing import List, Dict, Type, Tuple
+from typing import List, Dict, Type
 from abc import ABC, abstractmethod
 from OpenGL.GLUT import *
 from OpenGL.GLU import *

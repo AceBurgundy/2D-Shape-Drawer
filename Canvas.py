@@ -1,4 +1,13 @@
-from customtkinter import CTk, CTkFrame
+# for type checking purposes.
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Program import App
+
+# start of code
 from typing import Dict, List, Type
 from OpenGL.GLU import *
 from OpenGL.GL import *
@@ -10,12 +19,12 @@ from Shapes.Shape import Shape
 from Manager import Manager
 
 class OpenGLCanvas(pyopengltk.OpenGLFrame):
-    def __init__(self, parent: Type[CTk], **kwargs) -> None:
+    def __init__(self, parent: App, **kwargs) -> None:
         """
         Initializes the App object.
 
         Args:
-            parent (Type[CTk]): The parent MainApp object.
+            parent (App): The parent MainApp object.
             **kwargs: Additional keyword arguments to pass to the parent class initializer.
         """
         super().__init__(parent, **kwargs)
@@ -26,7 +35,7 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         self.bind("<ButtonRelease-1>", self._on_mouse_release)
 
         # Main frame
-        self.parent: Type[CTkFrame] = parent
+        self.parent: App = parent
 
         # Animation
         self.animate: int = 1

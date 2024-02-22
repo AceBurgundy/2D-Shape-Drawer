@@ -1,17 +1,27 @@
-from customtkinter import CTkButton, CTkFrame, CTk, CTkImage
+# for type checking purposes.
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Program import App
+    from Navigation import Navigation
+
+# start of code
+from customtkinter import CTkButton, CTkImage
 from Manager import Manager
-from typing import Type
 from PIL import Image
 from os import path
 
-class ShapeButton(CTkButton):
-    def __init__(self, parent: Type[CTkFrame], app: Type[CTk], shape_name: str, *args, **kwargs):
+class ImageButton(CTkButton):
+    def __init__(self, parent: Navigation, app: App, shape_name: str, *args, **kwargs):
         """
         Initializes the Button object.
 
         Args:
-            parent (Type[CTkFrame]): The parent CTkFrame object.
-            app (Type[CTk]): The MainApp object associated with the button.
+            parent (Navigation): The parent CTkFrame object.
+            app (App): The MainApp object associated with the button.
             shape_name (str): The str representing the shape draw method.
             *args: Additional positional arguments to pass to the parent class initializer.
             **kwargs: Additional keyword arguments to pass to the parent class initializer.
@@ -20,10 +30,10 @@ class ShapeButton(CTkButton):
         self.configure(corner_radius=0, fg_color="transparent")
 
         self.shape_name: str = shape_name
-        self.app: Type[CTk] = app
+        self.app: App = app
 
         image_path: str = path.join('icon_asset', f"{shape_name}.PNG")
-
+        print(image_path)
         if not path.exists(image_path):
             raise TypeError('The name of the image must be the same as the __name__ of the method')
 
@@ -57,5 +67,4 @@ class ShapeButton(CTkButton):
         else:
             self.configure(fg_color="blue", hover=False)
             self.app.configure(cursor="crosshair")
-
             Manager.clicked_button = self

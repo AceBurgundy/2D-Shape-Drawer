@@ -1,9 +1,7 @@
-# Given string
-key_press_event = "<KeyPress event send_event=True state=Shift|Control keysym=Shift_L keycode=16 x=468 y=216>"
+from typing import List, Dict
 
-# Split the string by spaces
 def get_pressed_status(event):
-    result = {}
+    result: Dict[str, List|str] = {}
     for part in str(event).split():
         if 'state=' in part:
             state_value = part.split('=')[1]

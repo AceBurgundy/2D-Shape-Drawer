@@ -1,5 +1,5 @@
-from typing import Tuple, TypeAlias
+from typing import Tuple
 
-NUMBER: TypeAlias = int|str
-COORDINATE: TypeAlias = Tuple[int ,int]
-RGB: TypeAlias = Tuple[float, float, float]
+type RGB = Tuple[float, float, float]
+type COORDINATE = Tuple[int ,int]
+type NUMBER = int|str
