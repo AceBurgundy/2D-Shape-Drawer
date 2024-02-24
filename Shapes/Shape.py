@@ -32,7 +32,8 @@ class Shape(ABC):
             start_coordinates: COORDINATE,
             end_coordinates: COORDINATE,
             border_color: RGB = WHITE,
-            background_color: RGB = WHITE
+            background_color: RGB = WHITE,
+            angle: NUMBER = 0
         ) -> None:
         """
         Initializes a Shape object with the given parameters.
@@ -40,6 +41,7 @@ class Shape(ABC):
         Args:
             background_color (RGB): The RGB values of the background color.
             border_color (RGB): The RGB values of the border color.
+            angle (NUMBER): The shapes initial angle of rotation.
             start_coordinates (COORDINATE): The start coordinates of the shape's position.
             end_coordinates (COORDINATE): The end coordinates of the shape's position.
         """
@@ -48,6 +50,14 @@ class Shape(ABC):
         self.selected: bool = False
         self.start_coordinates: COORDINATE = start_coordinates
         self.end_coordinates: COORDINATE = end_coordinates
+        self.angle: NUMBER = angle
+
+        self.center_x = (self.start_coordinates[0] + self.end_coordinates[0]) / 2
+        self.center_y = (self.start_coordinates[1] + self.end_coordinates[1]) / 2
+        self.half_size: NUMBER = min(self.width, self.height) / 2
+
+        # list of endpoints where the tip of each line meet (for border)
+        self.border_endpoints: VERTICES = []
 
     @property
     def width(self) -> NUMBER:
@@ -166,6 +176,24 @@ class Shape(ABC):
         """
         pass
 
+    def draw_to_canvas(self) -> None:
+        """
+        Draws shape into the canvas while containing it into a rotation algorithm
+        """
+        glPushMatrix() # Save the current matrix
+        glTranslatef(self.center_x, self.center_y, 0) # Translate to the center of the hexagon
+        glRotatef(self.angle, 0, 0, 1) # Rotate around the z-axis
+        glTranslatef(-self.center_x, -self.center_y, 0) # Translate back to the original position
+
+        self.draw()
+
+        # clear border_endpoints list after its being drawn
+        self.border_endpoints = []
+
+        glPopMatrix()
+        glFlush()
+
+    @abstractmethod
     def within_bounds(self, mouse_x: int, mouse_y: int) -> bool:
         """
         Checks if the given coordinates are within the bounds of the shape.
@@ -177,27 +205,90 @@ class Shape(ABC):
         Returns:
             bool: True if the coordinates are within the bounds of the shape, False otherwise.
         """
-        inside_width: bool = self.start_coordinates[0] <= mouse_x <= self.end_coordinates[0]
-        inside_height: bool = self.start_coordinates[1] <= mouse_y <= self.end_coordinates[1]
-        return inside_width and inside_height
+        pass
 
-    @staticmethod
-    def names() -> List[str]:
+    def increase_shape(self) -> None:
         """
-        Static method to get the class names of all subclasses of Shape.
+        Increase the size of the shape by 5 pixels.
+        """
+        self.end_coordinates = (
+            self.end_coordinates[0] + 5,
+            self.end_coordinates[1] + 5
+        )
+
+    def decrease_shape(self) -> None:
+        """
+        Decrease the size of the shape by 5 pixels.
+        """
+        self.end_coordinates = (
+            self.end_coordinates[0] - 5,
+            self.end_coordinates[1] - 5
+        )
+
+    def rotate_left(self) -> None:
+        """
+        Rotates the hexagon left by 10 degrees.
+        """
+        self.angle -= 1
+
+    def rotate_right(self) -> None:
+        """
+        Rotates the hexagon right by 10 degrees.
+        """
+        self.angle += 1
+
+    def set_new_color_from_hex(self, hex_color: str) -> Tuple:
+        """
+        Convert a hexadecimal color string to RGB floats.
+
+        Args:
+            hex_color (str): The hexadecimal color string (e.g., "#051dff").
 
         Returns:
-            List[str]: List of class names of all subclasses of Shape.
+            Tuple: A Tuple of RGB floats in the range [0.0, 1.0] representing the color.
         """
-        shape_names = Shape.shapes()
-        return list(shape_names)
+        # Remove '#' from the beginning if present
+        hex_color = hex_color.lstrip('#')
 
-    @staticmethod
-    def shapes() -> Dict[str, Type['Shape']]:
-        """
-        Static method to get the class names and class objects of all subclasses of Shape.
+        # Convert hexadecimal to RGB
+        rgb: Tuple[int] = tuple(int(hex_color[index: index + 2], 16) / 255.0 for index in (0, 2, 4))
 
-        Returns:
-            Dict[str, Type['Shape']]: Dictionary mapping class names to class objects of all subclasses of Shape.
+        self.background_color = rgb
+
+    def move(self, mouse_x: int, mouse_y: int) -> None:
         """
-        return {subclass.__name__: subclass for subclass in Shape.__subclasses__()}
+        Moves the shape along with the mouse
+        """
+        x_distance: NUMBER = abs(self.center_x - mouse_x)
+        y_distance: NUMBER = abs(self.center_y - mouse_y)
+
+        self.center_x = x_distance
+        self.center_y = y_distance
+
+    def move_up(self) -> None:
+        """
+        Moves shape up
+        """
+        self.center_y -= 1
+        return
+
+    def move_down(self) -> None:
+        """
+        Moves shape down
+        """
+        self.center_y += 1
+        return
+
+    def move_left(self) -> None:
+        """
+        Moves shape left
+        """
+        self.center_x -= 1
+        return
+
+    def move_right(self) -> None:
+        """
+        Moves shape right
+        """
+        self.center_x += 1
+        return
