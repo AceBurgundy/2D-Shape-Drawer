@@ -57,6 +57,108 @@ class Shape(ABC):
     def height(self) -> NUMBER:
         return abs(self.start_coordinates[1] - self.end_coordinates[1])
 
+    def draw_polygon(self, number_of_sides: int = 0) -> None:
+        """
+        Draws a polygon using GL_POLYGON
+
+        Args:
+            - number_of_sides (int): The number of sides for the polyon. Defaults to 0
+        """
+        glColor3f(*self.background_color)
+        glBegin(GL_POLYGON)
+        for index in range(number_of_sides):
+            angle = 2 * pi * index / number_of_sides + pi / -10
+            x: NUMBER = self.center_x + self.half_size * cos(angle)
+            y: NUMBER = self.center_y + self.half_size * sin(angle)
+            glVertex2f(x, y)
+        glEnd()
+
+        if self.selected:
+            self.draw_polygon_lines(number_of_sides)
+
+        return
+
+    def draw_polygon_lines(self, number_of_sides: int = 0, padding: int = 10) -> None:
+        """
+        Draws a polygon using GL_LINE_LOOP instead of GL_POLYGON.
+        After that, it draws a circle to where each point meet.
+
+        Args:
+            - number_of_sides (int): The number of sides for the polyon. Defaults to 0
+        """
+        glColor3f(*self.border_color)
+
+        glBegin(GL_LINE_LOOP)
+        for index in range(number_of_sides):
+            angle = 2 * pi * index / number_of_sides + pi / 10
+            x: NUMBER = self.center_x + (self.half_size + padding) * cos(-angle)
+            y: NUMBER = self.center_y + (self.half_size + padding) * sin(-angle)
+            endpoint: ENDPOINT = (x, y)
+
+            # Prevent circle from having dots
+            if number_of_sides < 100:
+                self.border_endpoints.append(endpoint)
+
+            glVertex2f(x, y)
+        glEnd()
+
+        if self.border_endpoints:
+            for endpoint in self.border_endpoints:
+                self.draw_dot_at(*endpoint)
+
+    def draw_dot_at(self, x, y) -> None:
+        """
+        Draw a circle at the specified (x, y) coordinate.
+
+        Args:
+            x (int, int): The x-coordinate of the center of the circle.
+            y (int, int): The y-coordinate of the center of the circle.
+        """
+        num_segments: int = 100
+        radius: int = 4
+
+        glBegin(GL_POLYGON)
+        glColor3f(*self.background_color)
+        for index in range(num_segments):
+            theta = 2.0 * 3.1415926 * index / num_segments
+            glVertex2f(x + radius * cos(theta), y + radius * sin(theta))
+        glEnd()
+
+    def use_within_polygon_bounds(self, mouse_x: int, mouse_y: int, number_of_sides: int = 0) -> None:
+        """
+        Checks whether the mouse is inside the polygon.
+
+        Args:
+            x (int): The mouse x-coordinate.
+            y (int): The mouse y-coordinate.
+        """
+        # Get the vertices of the polygon
+        vertices: VERTICES = []
+
+        for index in range(number_of_sides):
+            angle = 2 * pi * index / number_of_sides + radians(self.angle)
+            x: NUMBER = self.center_x + self.half_size * cos(angle)
+            y: NUMBER = self.center_y + self.half_size * sin(angle)
+            endpoint: Tuple[NUMBER, NUMBER] = (x, y)
+            vertices.append(endpoint)
+
+        # Initialize the number of crossings to zero
+        crossings: int = 0
+
+        # Loop through each edge of the polygon
+        for index in range(number_of_sides):
+            # Get the start and end points of the edge
+            start_x, start_y = vertices[index]
+            end_x, end_y = vertices[(index + 1) % number_of_sides]
+
+            # Check if the ray crosses the edge
+            if (start_y > mouse_y) != (end_y > mouse_y): # The edge is not horizontal
+                if mouse_x < (end_x - start_x) * (mouse_y - start_y) / (end_y - start_y) + start_x: # The ray is to the left of the edge
+                    crossings += 1 # Increment the number of crossings
+
+        # Check if the number of crossings is odd or even
+        return crossings % 2 == 1
+
     @abstractmethod
     def draw(self) -> None:
         """
