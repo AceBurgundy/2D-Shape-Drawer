@@ -1,5 +1,7 @@
-from typing import Tuple
+from typing import List, Tuple
 
-type RGB = Tuple[float, float, float]
-type COORDINATE = Tuple[int ,int]
+type ENDPOINT = Tuple[NUMBER, NUMBER]
+type VERTICES = List[ENDPOINT] | None
+type RGB = List[float, float, float]
+type COORDINATE = List[int ,int]
 type NUMBER = int|str
