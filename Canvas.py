@@ -172,10 +172,10 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
 
         is_within_any_shape_bounds: bool = False
 
-        if not self.shapes:
+        if len(self.shapes) == 0:
             return
 
-        for shape in self.shapes:
+        for shape in self.shapes[::-1]:
             if not shape.within_bounds(event.x, event.y):
                 continue
 
@@ -227,18 +227,18 @@ class OpenGLCanvas(pyopengltk.OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        if self.dragging and Global.clicked_button:
-            glBegin(GL_LINES)
-            glVertex2f(*self.start_coordinates)
-            glVertex2f(*self.current_coordinates)
-            glEnd()
-
         if self.shapes:
             Shape.canvas_width = self.winfo_width()
             Shape.canvas_height = self.winfo_height()
 
             for shape in self.shapes:
                 shape.draw_to_canvas()
+
+        if self.dragging and Global.clicked_button:
+            glBegin(GL_LINES)
+            glVertex2f(*self.start_coordinates)
+            glVertex2f(*self.current_coordinates)
+            glEnd()
 
     def insert_shape(self, start_coordinates, end_coordinates) -> None:
         """
