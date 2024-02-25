@@ -42,7 +42,7 @@ class Navigation(CTkFrame):
         import_button.pack(fill="both", pady=BOTTOM_PADDING_ONLY, padx=DEFAULT_PADDING)
 
         container: CTkFrame = CTkFrame(self)
-        container.pack(pady=TOP_PADDING_ONLY, padx=3)
+        container.pack(padx=3)
 
         shape_names: List[str] = names()
         index: int = 2
