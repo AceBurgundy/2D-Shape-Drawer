@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 # start of code
 from typing import Type
 
-class AppManager:
+class Global:
 
     clicked_button: ShapeButton = None
-    selected_shape: Type[Shape] = None
+    shape: Type[Shape] = None
