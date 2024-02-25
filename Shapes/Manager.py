@@ -1,4 +1,5 @@
 from typing import List, Dict, Type
+from Shapes.Polygon import Polygon
 from Shapes.Shape import Shape
 
 from Shapes.Circle import Circle
@@ -15,7 +16,7 @@ def names() -> List[str]:
     Returns:
         List[str]: List of class names of all subclasses of Shape.
     """
-    shape_names = shapes()
+    shape_names: List[str] = shapes()
     return list(shape_names)
 
 def shapes() -> Dict[str, Type['Shape']]:
@@ -25,4 +26,10 @@ def shapes() -> Dict[str, Type['Shape']]:
     Returns:
         Dict[str, Type['Shape']]: Dictionary mapping class names to class objects of all subclasses of Shape.
     """
-    return {subclass.__name__: subclass for subclass in Shape.__subclasses__()}
+    shape_dictionary: Dict[str, Type[Shape|Polygon]] = {subclass.__name__: subclass for subclass in Shape.__subclasses__()}
+    polygon_dictionary: Dict[str, Type[Shape|Polygon]] = {subclass.__name__: subclass for subclass in Polygon.__subclasses__()}
+
+    shape_dictionary.pop('Polygon')
+    merged: Dict[str, Type[Shape|Polygon]] = shape_dictionary.copy()
+    merged.update(polygon_dictionary)
+    return merged

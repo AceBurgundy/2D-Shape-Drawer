@@ -1,4 +1,3 @@
-from typing import List, Dict, Type
 from abc import ABC, abstractmethod
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -27,14 +26,7 @@ class Shape(ABC):
     canvas_width: NUMBER = 0
     canvas_height: NUMBER = 0
 
-    def __init__(
-            self,
-            start_coordinates: COORDINATE,
-            end_coordinates: COORDINATE,
-            border_color: RGB = WHITE,
-            background_color: RGB = WHITE,
-            angle: NUMBER = 0
-        ) -> None:
+    def __init__(self, start_coordinates: COORDINATE, end_coordinates: COORDINATE, border_color: RGB = WHITE, background_color: RGB = WHITE, angle: NUMBER = 0) -> None:
         """
         Initializes a Shape object with the given parameters.
 
@@ -48,15 +40,16 @@ class Shape(ABC):
         self.background_color: RGB = background_color
         self.border_color: RGB = border_color
         self.selected: bool = False
+
         self.start_coordinates: COORDINATE = start_coordinates
         self.end_coordinates: COORDINATE = end_coordinates
         self.angle: NUMBER = angle
 
-        self.center_x = (self.start_coordinates[0] + self.end_coordinates[0]) / 2
-        self.center_y = (self.start_coordinates[1] + self.end_coordinates[1]) / 2
+        self.center_x: NUMBER = (self.start_coordinates[0] + self.end_coordinates[0]) / 2
+        self.center_y: NUMBER = (self.start_coordinates[1] + self.end_coordinates[1]) / 2
         self.half_size: NUMBER = min(self.width, self.height) / 2
 
-        # list of endpoints where the tip of each line meet (for border)
+        # list of endpoints where the tip of each line meet (for creating dots)
         self.border_endpoints: VERTICES = []
 
     @property
@@ -66,55 +59,6 @@ class Shape(ABC):
     @property
     def height(self) -> NUMBER:
         return abs(self.start_coordinates[1] - self.end_coordinates[1])
-
-    def draw_polygon(self, number_of_sides: int = 0) -> None:
-        """
-        Draws a polygon using GL_POLYGON
-
-        Args:
-            - number_of_sides (int): The number of sides for the polyon. Defaults to 0
-        """
-        glColor3f(*self.background_color)
-        glBegin(GL_POLYGON)
-        for index in range(number_of_sides):
-            angle = 2 * pi * index / number_of_sides + pi / -10
-            x: NUMBER = self.center_x + self.half_size * cos(angle)
-            y: NUMBER = self.center_y + self.half_size * sin(angle)
-            glVertex2f(x, y)
-        glEnd()
-
-        if self.selected:
-            self.draw_polygon_lines(number_of_sides)
-
-        return
-
-    def draw_polygon_lines(self, number_of_sides: int = 0, padding: int = 10) -> None:
-        """
-        Draws a polygon using GL_LINE_LOOP instead of GL_POLYGON.
-        After that, it draws a circle to where each point meet.
-
-        Args:
-            - number_of_sides (int): The number of sides for the polyon. Defaults to 0
-        """
-        glColor3f(*self.border_color)
-
-        glBegin(GL_LINE_LOOP)
-        for index in range(number_of_sides):
-            angle = 2 * pi * index / number_of_sides + pi / 10
-            x: NUMBER = self.center_x + (self.half_size + padding) * cos(-angle)
-            y: NUMBER = self.center_y + (self.half_size + padding) * sin(-angle)
-            endpoint: ENDPOINT = (x, y)
-
-            # Prevent circle from having dots
-            if number_of_sides < 100:
-                self.border_endpoints.append(endpoint)
-
-            glVertex2f(x, y)
-        glEnd()
-
-        if self.border_endpoints:
-            for endpoint in self.border_endpoints:
-                self.draw_dot_at(*endpoint)
 
     def draw_dot_at(self, x, y) -> None:
         """
@@ -134,41 +78,6 @@ class Shape(ABC):
             glVertex2f(x + radius * cos(theta), y + radius * sin(theta))
         glEnd()
 
-    def use_within_polygon_bounds(self, mouse_x: int, mouse_y: int, number_of_sides: int = 0) -> None:
-        """
-        Checks whether the mouse is inside the polygon.
-
-        Args:
-            x (int): The mouse x-coordinate.
-            y (int): The mouse y-coordinate.
-        """
-        # Get the vertices of the polygon
-        vertices: VERTICES = []
-
-        for index in range(number_of_sides):
-            angle = 2 * pi * index / number_of_sides + radians(self.angle)
-            x: NUMBER = self.center_x + self.half_size * cos(angle)
-            y: NUMBER = self.center_y + self.half_size * sin(angle)
-            endpoint: Tuple[NUMBER, NUMBER] = (x, y)
-            vertices.append(endpoint)
-
-        # Initialize the number of crossings to zero
-        crossings: int = 0
-
-        # Loop through each edge of the polygon
-        for index in range(number_of_sides):
-            # Get the start and end points of the edge
-            start_x, start_y = vertices[index]
-            end_x, end_y = vertices[(index + 1) % number_of_sides]
-
-            # Check if the ray crosses the edge
-            if (start_y > mouse_y) != (end_y > mouse_y): # The edge is not horizontal
-                if mouse_x < (end_x - start_x) * (mouse_y - start_y) / (end_y - start_y) + start_x: # The ray is to the left of the edge
-                    crossings += 1 # Increment the number of crossings
-
-        # Check if the number of crossings is odd or even
-        return crossings % 2 == 1
-
     @abstractmethod
     def draw(self) -> None:
         """
@@ -180,15 +89,13 @@ class Shape(ABC):
         """
         Draws shape into the canvas while containing it into a rotation algorithm
         """
+        # To keep track of rotation
         glPushMatrix() # Save the current matrix
-        glTranslatef(self.center_x, self.center_y, 0) # Translate to the center of the hexagon
+        glTranslatef(self.center_x, self.center_y, 0) # Translate to the center of the shape
         glRotatef(self.angle, 0, 0, 1) # Rotate around the z-axis
         glTranslatef(-self.center_x, -self.center_y, 0) # Translate back to the original position
 
         self.draw()
-
-        # clear border_endpoints list after its being drawn
-        self.border_endpoints = []
 
         glPopMatrix()
         glFlush()
@@ -207,23 +114,32 @@ class Shape(ABC):
         """
         pass
 
+    def __change_shape(self, increment: bool=True) -> None:
+        """
+        Increases or decreases the size of the shape by 5 pixels.
+        """
+        end_x: NUMBER = self.end_coordinates[0]
+        end_y: NUMBER = self.end_coordinates[1]
+
+        self.end_coordinates = (
+            end_x + 5 if increment else end_x - 5,
+            end_y + 5 if increment else end_y - 5
+        )
+
+        self.half_size = min(self.width, self.height) / 2
+
     def increase_shape(self) -> None:
         """
         Increase the size of the shape by 5 pixels.
         """
-        self.end_coordinates = (
-            self.end_coordinates[0] + 5,
-            self.end_coordinates[1] + 5
-        )
+        self.__change_shape()
 
     def decrease_shape(self) -> None:
         """
         Decrease the size of the shape by 5 pixels.
         """
-        self.end_coordinates = (
-            self.end_coordinates[0] - 5,
-            self.end_coordinates[1] - 5
-        )
+        if self.width > 10:
+            self.__change_shape(False)
 
     def rotate_left(self) -> None:
         """
@@ -255,40 +171,30 @@ class Shape(ABC):
 
         self.background_color = rgb
 
-    def move(self, mouse_x: int, mouse_y: int) -> None:
-        """
-        Moves the shape along with the mouse
-        """
-        x_distance: NUMBER = abs(self.center_x - mouse_x)
-        y_distance: NUMBER = abs(self.center_y - mouse_y)
-
-        self.center_x = x_distance
-        self.center_y = y_distance
-
     def move_up(self) -> None:
         """
         Moves shape up
         """
-        self.center_y -= 1
+        self.center_y -= 10
         return
 
     def move_down(self) -> None:
         """
         Moves shape down
         """
-        self.center_y += 1
+        self.center_y += 10
         return
 
     def move_left(self) -> None:
         """
         Moves shape left
         """
-        self.center_x -= 1
+        self.center_x -= 10
         return
 
     def move_right(self) -> None:
         """
         Moves shape right
         """
-        self.center_x += 1
+        self.center_x += 10
         return
