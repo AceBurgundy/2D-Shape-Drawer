@@ -44,6 +44,11 @@ The App should now load and you should now be able to use the app
 - Add support for more shapes and customizable shapes
 - Enhance import/export functionality with additional file formats
 
+## Images
+
+![UI](UI.png)
+![Picking color](Pick.png)
+
 ## Acknowledgements
 
 [CTkColorPicker](https://github.com/Akascape/CTkColorPicker): A much better color picker when it comes to UI than the default Tkinter color picker.
