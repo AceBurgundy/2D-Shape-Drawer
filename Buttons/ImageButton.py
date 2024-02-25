@@ -38,6 +38,7 @@ class ImageButton(CTkButton, ABC):
             raise TypeError('The name of the image must be the same as the __name__ of the method')
 
         image = Image.open(fp=image_path)
+
         icon: CTkImage = CTkImage(size=(25, 25), light_image=image, dark_image=image)
         self.configure(image=icon, text='', height=0, width=0)
 
