@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 from Buttons.ImportButton import ImportButton
 from Buttons.ExportButton import ExportButton
 from Buttons.ShapeButton import ShapeButton
-from customtkinter import CTkFrame
+from customtkinter import CTkFrame, CTkButton
+from Tutorial import Tutorial
 from typing import List
 from constants import *
 
@@ -30,6 +31,9 @@ class Navigation(CTkFrame):
         """
         super().__init__(parent, **kwargs)
         self.parent: App = parent
+
+        controls_button: CTkButton = CTkButton(self, text="Controls", command=lambda: Tutorial().mainloop(), width=20)
+        controls_button.pack(fill="both", padx=DEFAULT_PADDING, pady=TOP_PADDING_ONLY)
 
         export_button: ExportButton = ExportButton(self, parent.right_content)
         export_button.pack(fill="both", padx=DEFAULT_PADDING, pady=DEFAULT_PADDING)
