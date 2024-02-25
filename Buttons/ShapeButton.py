@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 # start of code
 from Buttons.ImageButton import ImageButton
-from AppManager import AppManager
+from Global import Global
 
 class ShapeButton(ImageButton):
     def __init__(self, parent: Navigation, app: App, shape_name: str, *args, **kwargs):
@@ -36,21 +36,21 @@ class ShapeButton(ImageButton):
         """
         super()._clicked(event)
 
-        if AppManager.clicked_button:
-            clicked_same_as_current = AppManager.clicked_button.shape_name == self.shape_name
+        if Global.clicked_button:
+            clicked_same_as_current = Global.clicked_button.shape_name == self.shape_name
 
             if clicked_same_as_current:
-                AppManager.clicked_button.configure(fg_color="transparent")
-                AppManager.clicked_button = None
+                Global.clicked_button.configure(fg_color="transparent")
+                Global.clicked_button = None
                 self.app.configure(cursor='arrow')
             else:
-                AppManager.clicked_button.configure(fg_color="transparent")
+                Global.clicked_button.configure(fg_color="transparent")
                 self.configure(fg_color="blue", hover=False)
                 self.app.configure(cursor="crosshair")
 
-                AppManager.clicked_button = self
+                Global.clicked_button = self
 
         else:
             self.configure(fg_color="blue", hover=False)
             self.app.configure(cursor="crosshair")
-            AppManager.clicked_button = self
+            Global.clicked_button = self

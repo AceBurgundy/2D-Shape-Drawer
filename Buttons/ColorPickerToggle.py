@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 # start of code
 from customtkinter import CTkButton, CTkFrame
-from AppManager import AppManager
 from CTkColorPicker import *
+from Global import Global
 from typing import Type
 
 class ColorPickerToggle(CTkButton):
@@ -39,7 +39,7 @@ class ColorPickerToggle(CTkButton):
         chosen_color = pick_color.get()
         self.configure(fg_color=chosen_color if chosen_color else "white")
 
-        if not AppManager.selected_shape:
+        if not Global.shape:
             return
 
-        AppManager.selected_shape.set_new_color_from_hex(chosen_color)
+        Global.shape.set_new_color_from_hex(chosen_color)
