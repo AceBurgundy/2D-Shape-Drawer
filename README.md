@@ -51,7 +51,8 @@ The App should now load and you should now be able to use the app
 
 ## Acknowledgements
 
-[CTkColorPicker](https://github.com/Akascape/CTkColorPicker): A much better color picker when it comes to UI than the default Tkinter color picker.
+- [CTkColorPicker](https://github.com/Akascape/CTkColorPicker): A much better color picker when it comes to UI than the default Tkinter color picker.
+- [pyopengltk](https://github.com/jonwright/pyopengltk): Helped me to actually draw shapes on a tkinter frame using OpenGL. If it wasn't for this I would've moved on to use PyGame for the UI.
 
 ## License
 
